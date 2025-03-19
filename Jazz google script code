@@ -1,0 +1,69 @@
+function updateDropdowns() {
+  var form = FormApp.openById("1reuAZF3XJ7csb_3ZfXPMnQ3myYg55zNp96rBSpGDsUk"); // Google Form ID
+  var sheet = SpreadsheetApp.openById("16BdfnBN10f0_c7jAslP9Jgrd1S--rJd3n9liuVWGiEk"); // Google Sheets ID
+
+  var confirmedSheet = sheet.getSheetByName("Confirmed Jazz Venues");
+  var nonConfirmedSheet = sheet.getSheetByName("Non confirmed Jazz Venue");
+
+  // Get names of Jazz Venues and remove duplicates
+  var confirmedNames = [...new Set(confirmedSheet.getRange("B2:B").getValues().flat().filter(String))];
+  var nonConfirmedNames = [...new Set(nonConfirmedSheet.getRange("B2:B").getValues().flat().filter(String))];
+
+  var formItems = form.getItems();
+
+  // Update Confirmed Jazz Venues dropdown
+  formItems.forEach(item => {
+    if (item.getTitle() === "Names of Jazz Venues (confirmed locations)") {
+      var listItem = item.asListItem();
+      listItem.setChoices(confirmedNames.map(name => listItem.createChoice(name)));
+    }
+  });
+
+  // Update Non-Confirmed Jazz Venues dropdown
+  formItems.forEach(item => {
+    if (item.getTitle() === "Names of Jazz Venues (not confirmed locations)") {
+      var listItem = item.asListItem();
+      listItem.setChoices(nonConfirmedNames.map(name => listItem.createChoice(name)));
+    }
+  });
+
+  Logger.log("Dropdowns updated successfully.");
+}
+
+function onFormSubmit(e) {
+  var sheet = SpreadsheetApp.openById("16BdfnBN10f0_c7jAslP9Jgrd1S--rJd3n9liuVWGiEk"); // Google Sheets ID
+  var responseSheet = sheet.getSheetByName("Form Responses");
+
+  if (!responseSheet) {
+    responseSheet = sheet.insertSheet("Form Responses");
+    responseSheet.appendRow([
+      "Timestamp", "User Choice", "Selected Venue", "Address", "Starting Year",
+      "Ending Year", "Summary", "City", "Neighborhood", "Closest Station",
+      "Website URL", "Social Media", "Active Status"
+    ]);
+  }
+
+  var formResponse = e.response;
+  var itemResponses = formResponse.getItemResponses();
+  
+  var timestamp = new Date(formResponse.getTimestamp()).toLocaleString();
+  var userChoice = itemResponses[0].getResponse(); // First question response
+  var selectedVenue = ""; // Will store the venue name based on user selection
+  var answers = []; // Array to hold the rest of the responses
+
+  itemResponses.forEach((item, index) => {
+    var title = item.getItem().getTitle();
+    var response = item.getResponse();
+
+    if (title.includes("confirmed locations") || title.includes("not confirmed locations")) {
+      selectedVenue = response;
+    } else {
+      answers.push(response);
+    }
+  });
+
+  responseSheet.appendRow([timestamp, userChoice, selectedVenue, ...answers]);
+
+  Logger.log("Form responses recorded successfully.");
+}
+
