@@ -5,9 +5,35 @@ function updateDropdowns() {
   var confirmedSheet = sheet.getSheetByName("Confirmed Jazz Venues");
   var nonConfirmedSheet = sheet.getSheetByName("Non confirmed Jazz Venue");
 
-  // Get names of Jazz Venues and remove duplicates
-  var confirmedNames = [...new Set(confirmedSheet.getRange("B2:B").getValues().flat().filter(String))];
-  var nonConfirmedNames = [...new Set(nonConfirmedSheet.getRange("B2:B").getValues().flat().filter(String))];
+  function getSortedUniqueVenues(sheet) {
+    var values = sheet.getRange("B2:J").getValues(); // Extract Name (B) & Neighborhood (J)
+    
+    var venueSet = new Set(); // Use a Set to remove duplicates
+    var venues = [];
+
+    values.forEach(row => {
+      var name = row[0]?.trim(); // Venue Name (Column B)
+      var neighborhood = row[8]?.trim() || "N/A"; // Neighborhood (Column J), default to "N/A" if empty
+      var formattedName = `${neighborhood} - ${name}`;
+
+      if (!venueSet.has(formattedName)) {
+        venueSet.add(formattedName);
+        venues.push({ fullName: formattedName, neighborhood: neighborhood });
+      }
+    });
+
+    // Sort alphabetically, pushing "N/A" neighborhoods to the bottom
+    venues.sort((a, b) => {
+      if (a.neighborhood === "N/A" && b.neighborhood !== "N/A") return 1;
+      if (b.neighborhood === "N/A" && a.neighborhood !== "N/A") return -1;
+      return a.fullName.localeCompare(b.fullName);
+    });
+
+    return venues.map(v => v.fullName);
+  }
+
+  var confirmedNames = getSortedUniqueVenues(confirmedSheet);
+  var nonConfirmedNames = getSortedUniqueVenues(nonConfirmedSheet);
 
   var formItems = form.getItems();
 
@@ -66,4 +92,3 @@ function onFormSubmit(e) {
 
   Logger.log("Form responses recorded successfully.");
 }
-
