@@ -12,6 +12,7 @@ Sorts entries alphabetically (with "N/A" neighborhoods at the bottom)
 Logs each submission in a dedicated response sheet
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
 Files and Functions
 
 updateDropdowns()
@@ -37,6 +38,7 @@ Purpose:
 Logs each form submission to a sheet called "Form Responses" in the same spreadsheet.
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
 How It Works:
 
 Extracts:
@@ -54,17 +56,20 @@ Requirements
 Google Form ID: 1reuAZF3XJ7csb_3ZfXPMnQ3myYg55zNp96rBSpGDsUk
 Google Sheet ID: 16BdfnBN10f0_c7jAslP9Jgrd1S--rJd3n9liuVWGiEk
 Must have two sheets named exactly:
+
 Confirmed Jazz Venues
 Non confirmed Jazz Venue
 
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-Deployment
+
+How to Use?
 
 Open Google Apps Script
 Paste this script into the editor
 Make sure your Google Form and Google Sheet IDs match
-Run updateDropdowns() manually or trigger on edit/time-based trigger
+
+Run updateDropdowns() manually or trigger on edit/time-based trigger (basically make it either activate daily or activate per user input
 Set up onFormSubmit(e) as an installable trigger:
 Edit → Current Project’s Triggers → Add Trigger
 Choose function: onFormSubmit
